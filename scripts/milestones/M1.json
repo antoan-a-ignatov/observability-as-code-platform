@@ -31,7 +31,7 @@
       "body": [
         "Ruleset on `main`: pull requests required, no force pushes or deletions, linear history. Squash merges only, with merged branches deleted automatically.",
         "",
-        "Milestones and issues are generated from JSON files by a PowerShell script. `.gitignore` and pre-commit hooks for formatting, linting and secret scanning, with Renovate keeping pinned versions current."
+        "Milestones and issues are generated from JSON files by a PowerShell script. `.gitignore` and pre-commit hooks for formatting, linting and secret scanning, with Dependabot proposing version updates monthly."
       ]
     },
     {
