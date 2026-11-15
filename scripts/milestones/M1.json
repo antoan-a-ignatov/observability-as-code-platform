@@ -1,0 +1,62 @@
+{
+  "milestone": {
+    "title": "M1: Toolchain and repository setup",
+    "description": "Workstation toolchain, AWS access, repository setup and the Terraform state backend."
+  },
+  "issues": [
+    {
+      "key": "m1-wsl-distro",
+      "title": "Create a dedicated WSL distro",
+      "body": [
+        "Ubuntu 24.04 WSL distro used only for this project, so its tools and versions stay separate from other projects."
+      ]
+    },
+    {
+      "key": "m1-toolchain",
+      "title": "Install and pin the project toolchain",
+      "body": [
+        "Every tool the project uses is installed at a pinned version, with checksums or signatures verified where published. apt-installed tools are held so routine upgrades can't change them."
+      ]
+    },
+    {
+      "key": "m1-aws-cli-access",
+      "title": "Set up AWS CLI access with aws login",
+      "body": [
+        "CLI access through `aws login`: temporary credentials and MFA at sign-in, no stored access keys. A named profile is set as the default, with region eu-north-1."
+      ]
+    },
+    {
+      "key": "m1-repo-config",
+      "title": "Configure the GitHub repository",
+      "body": [
+        "Ruleset on `main`: pull requests required, no force pushes or deletions, linear history. Squash merges only, with merged branches deleted automatically.",
+        "",
+        "Milestones and issues are generated from JSON files by a PowerShell script. `.gitignore` and pre-commit hooks for formatting, linting and secret scanning, with Renovate keeping pinned versions current."
+      ]
+    },
+    {
+      "key": "m1-readme-skeleton",
+      "title": "Decide the README skeleton and write the first README",
+      "body": [
+        "Decide the README's section structure for the whole project and write the first version, with the toolchain table and the sections that apply at this stage."
+      ]
+    },
+    {
+      "key": "m1-terraform-backend",
+      "title": "Bootstrap the Terraform state backend",
+      "body": [
+        "S3 bucket for Terraform state, created by a small bootstrap configuration: encrypted, versioned, public access blocked, with native state locking.",
+        "",
+        "An ADR records where the bootstrap keeps its own state, since the bucket can't hold the state of the code that creates it."
+      ]
+    },
+    {
+      "key": "m1-download-accounts",
+      "title": "Create accounts for Splunk, Cribl and Snyk",
+      "body": [
+        "Free accounts needed for later downloads. No trials are started until the milestone that uses them."
+      ]
+    }
+  ]
+}
+
