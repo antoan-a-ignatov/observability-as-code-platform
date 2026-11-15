@@ -44,6 +44,8 @@ Added in Milestone 7.
 
 ## Repository Structure
 
+## Repository Structure
+
 ```
 .
 ├── .github/
@@ -51,6 +53,8 @@ Added in Milestone 7.
 ├── scripts/
 │   ├── milestones/                     Milestone and issue definitions, one JSON file per milestone
 │   └── New-GitHubMilestoneIssues.ps1   Creates GitHub milestones and issues from those files
+├── terraform/
+│   └── bootstrap/                      S3 bucket for Terraform state, created once and kept permanently
 ├── .gitignore
 ├── .pre-commit-config.yaml             Formatting, linting and secret scanning on every commit
 ├── LICENSE
@@ -130,6 +134,8 @@ These rules apply from the first machine onward:
 - Gitleaks scans every commit before it leaves the workstation.
 
 ## Engineering Challenges and Design Decisions
+
+**Terraform state backend created by Terraform.** A small bootstrap configuration in `terraform/bootstrap/` creates the S3 bucket for Terraform state. It ran once with local state, then moved its own state into that bucket with `terraform init -migrate-state`, so nothing depends on a file on one machine. `prevent_destroy` keeps Terraform from deleting the bucket that holds its own state, and locking uses S3's native lock file, without DynamoDB.
 
 **Dependabot over Renovate.** Renovate was the first choice for version updates, but its hosted GitHub app requires a separate Mend account and grants a third-party service write access to the repository. Dependabot is built into GitHub and needs only a config file. The trade-off: Dependabot understands standard formats such as `.pre-commit-config.yaml`, Terraform providers, Dockerfiles and Helm charts, while versions pinned in this project's own Ansible variables and scripts are updated by hand.
 
