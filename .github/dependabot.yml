@@ -6,3 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+  - package-ecosystem: "terraform"
+    directories:
+      - "/terraform/bootstrap"
+      - "/terraform/foundation"
+    schedule:
+      interval: "monthly"
