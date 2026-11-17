@@ -1,0 +1,81 @@
+{
+  "milestone": {
+    "title": "M2: MVP, platform and pipeline",
+    "description": "A persistent network and CI machine, Bamboo pipelines that validate PRs and deploy on merge, and a fleet deployed through them, configured by Ansible and monitored by Naemon, Prometheus and Grafana."
+  },
+  "issues": [
+    {
+      "key": "m2-terraform-foundation",
+      "title": "Provision the network and CI machine with Terraform",
+      "body": [
+        "Foundation configuration under `terraform/`, with its own state key in the existing state bucket. It holds what has to survive between sessions: public subnets with no inbound access and no NAT gateway, the CI machine (t3.large) with a separate EBS data volume for the Bamboo home, an Elastic IP for GitHub's webhooks, and the CI machine's IAM role. The folder names for the foundation and platform configurations are decided here.",
+        "",
+        "It is applied from the laptop, like the bootstrap, since CI can't create itself. The CI machine is stopped between sessions and destroyed only at the end of the project.",
+        "",
+        "IMDSv2, encrypted EBS, standard CPU credits, access through Session Manager only, and `Project` and `Milestone` tags on every resource. Dependabot is extended to the Terraform ecosystem, and the AWS provider pin is rechecked."
+      ]
+    },
+    {
+      "key": "m2-ci-pipeline",
+      "title": "Build the CI server and its PR and deploy pipelines",
+      "body": [
+        "Bamboo Data Center on a 30-day evaluation license that expires around 16 Dec 2026, with Jenkins replacing it after that. Pipelines are YAML Specs that only call scripts in the repo, so moving to Jenkins means rewriting the wrappers.",
+        "",
+        "Ansible configures the CI machine from the laptop, with the Bamboo home and its database on the data volume. Bamboo's database is decided here. Only GitHub's webhook IP ranges can reach the server, and the CI role is least-privilege.",
+        "",
+        "PR validation starts with `terraform fmt`, `validate`, tflint, Trivy on Terraform, `terraform plan`, yamllint and Gitleaks, required as GitHub status checks on `main`. Later issues add their own checks. A merge to `main` runs `terraform apply`, then Ansible.",
+        "",
+        "README decision entries for the CI tool and the persistent CI machine.",
+        "",
+        "Done when a PR can't merge until its checks pass, its Terraform plan is visible in Bamboo, and the CI machine keeps its data through a stop and start."
+      ]
+    },
+    {
+      "key": "m2-terraform-platform",
+      "title": "Provision the monitoring, k3s and legacy machines through the pipeline",
+      "body": [
+        "Platform configuration under `terraform/`, with its own state key, applied by CI only. It reads the network from the foundation configuration's outputs.",
+        "",
+        "Monitoring (t3.medium), k3s (t3.medium) and legacy (t3.small), each with its own least-privilege IAM role and the same machine baseline as the CI machine. Torn down after every session."
+      ]
+    },
+    {
+      "key": "m2-ansible-baseline",
+      "title": "Configure the fleet with Ansible",
+      "body": [
+        "Hardening baseline and automatic security updates on every machine, node_exporter everywhere, and PostgreSQL and nginx on the legacy server. The pipeline runs Ansible after `terraform apply`, connecting through Session Manager, since SSH is not open.",
+        "",
+        "k3s is installed at a pinned 1.36 or 1.37 version and monitored as a host only at this stage.",
+        "",
+        "A second run reports zero changes. ansible-lint is added to the pre-commit hooks and to PR validation with the first Ansible files."
+      ]
+    },
+    {
+      "key": "m2-naemon-checks",
+      "title": "Monitor the fleet with Naemon",
+      "body": [
+        "Naemon on the monitoring server, with host and service checks for every machine. The configuration lives in the repo, and the Naemon config check is added to PR validation.",
+        "",
+        "Fallback order if Naemon can't be installed: another repository, then Ubuntu 22.04 on the monitoring server only, then Nagios Core from Ubuntu's repository.",
+        "",
+        "Done when a PR that changes a Naemon check is validated, shows the plan, deploys on merge and appears in Naemon."
+      ]
+    },
+    {
+      "key": "m2-prometheus-grafana",
+      "title": "Set up Prometheus, Alertmanager and Grafana",
+      "body": [
+        "Prometheus scrapes every target. Alertmanager routes critical alerts only, and stopping PostgreSQL fires one. Grafana gets its datasource and one dashboard provisioned from the repo. `promtool` checks are added to PR validation."
+      ]
+    },
+    {
+      "key": "m2-teardown-release",
+      "title": "Verify teardown and release the MVP",
+      "body": [
+        "Teardown destroys the platform configuration and leaves nothing of it behind. The CI machine is stopped, not destroyed. Security rules are checked: only the CI webhook port accepts inbound traffic, from GitHub's IP ranges.",
+        "",
+        "README decision entries for Naemon, the network design and the three Terraform configurations, and a check that every M2 decision is recorded. A runbook in `docs/runbooks/` for the PostgreSQL alert. CHANGELOG updated and `v0.1.0` tagged."
+      ]
+    }
+  ]
+}
