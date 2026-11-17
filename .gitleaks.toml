@@ -1,0 +1,12 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Issue keys in milestone files, written as m<number>-<words>"
+condition = "AND"
+paths = ['''^scripts/milestones/M\d+\.json$''']
+regexTarget = "secret"
+regexes = ['''^m\d+(-[a-z0-9]+)+$''']
