@@ -1,4 +1,4 @@
-# No inbound rules. GitHub's webhook rule is added later.
+# Inbound only from GitHub's webhook ranges to Bamboo.
 resource "aws_security_group" "ci" {
   name        = "oacp-ci"
   description = "CI machine"
@@ -27,6 +27,20 @@ resource "aws_vpc_security_group_egress_rule" "ci_http" {
   from_port         = 80
   to_port           = 80
   cidr_ipv4         = "0.0.0.0/0"
+}
+
+data "github_ip_ranges" "current" {}
+
+# The VPC has no IPv6, so only GitHub's IPv4 webhook ranges are allowed.
+resource "aws_vpc_security_group_ingress_rule" "ci_github_hooks" {
+  for_each = toset(data.github_ip_ranges.current.hooks_ipv4)
+
+  security_group_id = aws_security_group.ci.id
+  description       = "GitHub webhooks to Bamboo"
+  ip_protocol       = "tcp"
+  from_port         = 8085
+  to_port           = 8085
+  cidr_ipv4         = each.value
 }
 
 # Public address comes from the Elastic IP; the subnet does not assign one.
@@ -69,9 +83,9 @@ resource "aws_ebs_volume" "ci_data" {
   type              = "gp3"
   encrypted         = true
 
-  tags = {
+  tags = merge(local.backup_target_tags, {
     Name = "oacp-ci-data"
-  }
+  })
 
   lifecycle {
     prevent_destroy = true
