@@ -22,3 +22,8 @@ output "ci_public_ip" {
   description = "Elastic IP of the CI machine"
   value       = aws_eip.ci.public_ip
 }
+
+output "ansible_bucket_name" {
+  description = "S3 bucket for Ansible's Session Manager file transfers"
+  value       = aws_s3_bucket.ansible.bucket
+}
