@@ -81,7 +81,7 @@ resource "aws_dlm_lifecycle_policy" "ci_data" {
     target_tags    = local.backup_target_tags
 
     schedule {
-      name      = "Daily, keep 7"
+      name      = "Daily keep 7"
       copy_tags = true
 
       create_rule {
